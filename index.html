@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Star wars Test</title>
+    <style>
+      .container {
+        width: 80%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        margin: auto;
+      }
+
+      .search {
+        width: 40%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border: 1px solid black;
+        border-radius: 10px;
+        padding: 10px 15px;
+      }
+
+      .search-box {
+        display: flex;
+        width: 100%;
+      }
+
+      .search input {
+        width: 100%;
+        padding: 10px 15px;
+        border-radius: 10px;
+        outline: none;
+        border: none;
+      }
+
+      .search-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        padding: 8px 6px;
+      }
+
+      .search-icon img {
+        width: 75%;
+      }
+
+      .search-results {
+        width: 96%;
+        margin-top: 10px;
+        border-top: 1px solid black;
+        padding-left: 10px;
+        max-height: 168px;
+        overflow: scroll;
+        overflow-x: hidden;
+        display: none;
+      }
+
+      .result-items {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .show {
+        display: block;
+      }
+
+      .result-items {
+        cursor: pointer;
+      }
+
+      .detail-items {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .content {
+        display: flex;
+        gap: 10px;
+      }
+
+      .personal-info,
+      .anatomy {
+        border: 1px solid black;
+        padding: 2px 15px;
+        border-radius: 10px;
+      }
+
+      .details button {
+        border: 1px solid black;
+        background-color: #fff;
+        padding: 10px 15px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="logo">
+        <img
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSz1oxYa16QkYbSAjstrwIqAeIOoRjZuIM4ow&usqp=CAU"
+          alt=""
+        />
+      </div>
+      <div class="search">
+        <div class="search-box">
+          <input
+            type="text"
+            id="search-items"
+            placeholder="Search Characters"
+            oninput="debounce(getData,1000)"
+            autofocus
+          />
+          <div class="search-icon">
+            <img src="https://img.icons8.com/ios/50/000000/search--v1.png" />
+          </div>
+        </div>
+        <div class="search-results"></div>
+      </div>
+      <div class="details"></div>
+    </div>
+  </body>
+  <script>
+    var timerId;
+
+    async function getData() {
+      const searchResults = document.querySelector(".search-results");
+      searchResults.innerHTML = null;
+      const inputBox = document.querySelector("#search-items").value;
+
+      var response = await fetch(
+        `https://swapi.dev/api/people/?search=${inputBox}`
+      );
+      var data = await response.json();
+
+      data.results.forEach((el) => {
+        const resultItems = document.createElement("div");
+        resultItems.className = "result-items";
+        const name = document.createElement("div");
+        name.className = "name";
+        const p1 = document.createElement("p");
+        p1.textContent = el.name;
+        const p2 = document.createElement("p");
+        p2.textContent = el.birth_year;
+        name.append(p1, p2);
+        const gender = document.createElement("div");
+        gender.className = "gender";
+        const p3 = document.createElement("p");
+        p3.textContent = el.gender;
+        gender.append(p3);
+        resultItems.append(name, gender);
+        searchResults.append(resultItems);
+        resultItems.addEventListener("click", () => {
+          showDetails(el);
+        });
+      });
+    }
+
+    function showDetails(el) {
+      const logo = document.querySelector(".logo");
+      logo.style.display = "none";
+      const search = document.querySelector(".search");
+      search.style.display = "none";
+      const details = document.querySelector(".details");
+      details.style.display = "block";
+      details.innerHTML = null;
+
+      const detailItems = document.createElement("div");
+      detailItems.className = "detail-items";
+      const h1 = document.createElement("h1");
+      h1.textContent = el.name;
+      const content = document.createElement("div");
+      content.className = "content";
+      const personalInfo = document.createElement("div");
+      personalInfo.className = "personal-info";
+      const h3 = document.createElement("h3");
+      h3.textContent = "Personal Info";
+      const p1 = document.createElement("p");
+      p1.textContent = `Birth Year: ${el.birth_year}`;
+      const p2 = document.createElement("p");
+      p2.textContent = `Gender: ${el.gender}`;
+      const p3 = document.createElement("p");
+      p3.textContent = `Height: ${el.height}`;
+      personalInfo.append(h3, p1, p2, p3);
+      const anatomy = document.createElement("div");
+      anatomy.className = "anatomy";
+      const heading = document.createElement("h3");
+      heading.textContent = "Anatomy";
+      const eyeColor = document.createElement("p");
+      eyeColor.textContent = `Eye Color: ${el.eye_color}`;
+      const mass = document.createElement("p");
+      mass.textContent = `Gender: ${el.mass}`;
+      const hairColor = document.createElement("p");
+      hairColor.textContent = `Height: ${el.hair_color}`;
+      anatomy.append(heading, eyeColor, mass, hairColor);
+      content.append(personalInfo, anatomy);
+      const button = document.createElement("button");
+      button.textContent = "Go Back";
+      button.className = "go-back";
+      button.addEventListener("click", () => {
+        toggle();
+      });
+      detailItems.append(h1, content, button);
+      details.append(detailItems);
+    }
+
+    function toggle() {
+      const logo = document.querySelector(".logo");
+      logo.style.display = "block";
+      const search = document.querySelector(".search");
+      search.style.display = "block";
+      const details = document.querySelector(".details");
+      details.style.display = "none";
+    }
+
+    async function debounce(func, delay) {
+      const searchResults = document.querySelector(".search-results");
+      const inputBox = document.querySelector("#search-items").value;
+      if (inputBox.length < 3) {
+        return false;
+      } else {
+        searchResults.classList.add("show");
+      }
+
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+
+      timerId = setTimeout(() => {
+        func();
+      }, delay);
+    }
+  </script>
+</html>
